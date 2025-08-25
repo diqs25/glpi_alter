@@ -1,0 +1,105 @@
+{% extends 'layout/page_card_notlogged.html.twig' %}
+
+{% block html_head %}
+  {{ parent() }}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
+
+{% block content_block %}
+<!-- HEADER -->
+<div class="titulo-institucional">
+  <h1><i class="fa-solid fa-network-wired"></i> Sistema para a gestão de infraestrutura de TI</h1>
+</div>
+
+<!-- CONTEÚDO PRINCIPAL -->
+<main id="custom-login-wrapper">
+  <!-- SUPORTE -->
+  <div class="support-box">
+    <h3><i class="fa-solid fa-circle-info"></i> Suporte ao Usuário:</h3>
+    <ul>
+      <li>
+        <a href="https://smti.portovelho.ro.gov.br/" target="_blank">
+          <i class="fa-solid fa-book-open"></i> Manual do Usuário
+        </a>
+      </li>
+      <li>
+        <a href="https://smti.portovelho.ro.gov.br/" target="_blank">
+          <i class="fa-solid fa-landmark"></i> Portal SMTI
+        </a>
+      </li>
+      <li>
+        <a href="https://smti.portovelho.ro.gov.br/uploads/arquivos/2024/05/64276/1715912683decretodeo-glpi-06052024.pdf" target="_blank">
+          <i class="fa-solid fa-scroll"></i> Decreto Municipal
+        </a>
+      </li>
+      <li>
+        <a href="https://smti.portovelho.ro.gov.br/uploads/arquivos/2024/05/64276/1715912683decretodeo-glpi-06052024.pdf" target="_blank">
+          <i class="fa-solid fa-shield-halved"></i> Política de Segurança
+        </a>
+      </li>
+     <li>
+        <a href="https://smti.portovelho.ro.gov.br/" target="_blank">
+          <i class="fa-solid fa-book-open"></i> FAQ - Perguntas Freq.
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- FORMULÁRIO LOGIN -->
+  <div class="login-box">
+    <form action="{{ path('front/login.php') }}" method="post" autocomplete="off" data-submit-once>
+      <input type="hidden" name="noAUTO" value="{{ noAuto }}" />
+      <input type="hidden" name="redirect" value="{{ redirect }}" />
+      <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}" />
+
+      <h2><i class="fa fa-lock"></i> {{ __('Acesso Restrito') }}</h2>
+
+      <p class="login-subtext">
+  Use o mesmo usuário e senha do SEI ou do seu computador.
+</p>
+      <label for="login_name"><i class="fa fa-user"></i> {{ __('Usuário') }}</label>
+      <input type="text" id="login_name" name="{{ namfield }}" tabindex="1" />
+
+      <label for="login_password"><i class="fa fa-key"></i> {{ __('Senha') }}</label>
+      <input type="password" id="login_password" name="{{ pwdfield }}" tabindex="2" />
+
+      {% if config('display_login_source') %}
+        <label for="dropdown_auth{{ rand }}"><i class="fa fa-database"></i> {{ __('Origem de login') }}</label>
+        {{ auth_dropdown_login|raw }}
+      {% endif %}
+
+      <div class="form-button-wrapper">
+        <button type="submit"><i class="fa fa-right-to-bracket"></i> Entrar</button>
+      </div>
+
+      <div class="forgot-password">
+        <a href="#"><i class="fa fa-question-circle"></i> Esqueci minha senha</a>
+      </div>
+
+      {% if errors|length > 0 %}
+        <div class="alert alert-danger" role="alert">
+          {{ errors }}
+        </div>
+      {% endif %}
+    </form>
+  </div>
+</main>
+
+<!-- RODAPÉ -->
+<footer class="glpi-footer" role="contentinfo" aria-label="Rodapé do sistema">
+  <div class="footer-content">
+    <div class="footer-lines">
+      <div class="line1">
+        {{ "now"|date("Y") }} © Prefeitura de Porto Velho – SMTI
+      </div>
+      <div class="line2">
+        <i class="fa-solid fa-headset" aria-hidden="true"></i>
+        Gabinete: <a href="tel:+556939013079">(69) 3901-6322</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+
+{% endblock %}
