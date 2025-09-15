@@ -1,0 +1,160 @@
+{% extends 'layout/page_card_notlogged.html.twig' %}
+
+{% block html_head %}
+  {{ parent() }}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
+
+{% block content_block %}
+<!-- HEADER -->
+<div class="titulo-institucional">
+  <h1><i class="fa-solid fa-sitemap" aria-hidden="true"></i> GLPI - gestão de serviços de TI</h1>
+</div>
+
+<main id="custom-login-wrapper">
+  <!-- SUPORTE -->
+  <div class="support-box">
+    <h3><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Suporte ao Usuário:</h3>
+    <ul>
+      <li><a href="https://dgez.com.br/bc/" target="_blank" rel="noopener">
+        <i class="fa-solid fa-book-open" aria-hidden="true"></i> Manual do Usuário</a></li>
+      <li><a href="https://dgez.com.br/" target="_blank" rel="noopener">
+        <i class="fa-solid fa-landmark" aria-hidden="true"></i> Portal DGEZ</a></li>
+      <li><a href="https://dgez.com.br/servicos/" target="_blank" rel="noopener">
+        <i class="fa-solid fa-tools" aria-hidden="true"></i> Nossos Serviços</a></li>
+      <li><a href="https://dgez.com.br/pp/" target="_blank" rel="noopener">
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Política de Privacidade da DGEZ</a></li>
+      <li><a href="https://dgez.com.br/contato/" target="_blank" rel="noopener">
+        <i class="fa-solid fa-comment" aria-hidden="true"></i> Suporte GLPI</a></li>
+    </ul>
+  </div>
+
+  <!-- FORMULÁRIO LOGIN -->
+  <div class="login-box">
+    <form action="{{ path('front/login.php') }}" method="post" autocomplete="off" data-submit-once>
+      <input type="hidden" name="noAUTO" value="{{ noAuto }}" />
+      <input type="hidden" name="redirect" value="{{ redirect }}" />
+      <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}" />
+
+      <h2><i class="fa fa-lock" aria-hidden="true"></i> {{ __('Acesso Restrito') }}</h2>
+
+      <p class="login-subtext">
+        Use a senha encaminhada no seu email pessoal ou corporativo.
+      </p>
+
+      <label for="login_name"><i class="fa fa-user" aria-hidden="true"></i> {{ __('Usuário') }}</label>
+      <input type="text" id="login_name" name="{{ namfield }}" tabindex="1" autocomplete="username" />
+
+      <label for="login_password"><i class="fa fa-key" aria-hidden="true"></i> {{ __('Senha') }}</label>
+      <input type="password" id="login_password" name="{{ pwdfield }}" tabindex="2" autocomplete="current-password" />
+
+      {% if config('display_login_source') %}
+        <label for="dropdown_auth{{ rand }}"><i class="fa fa-database" aria-hidden="true"></i> {{ __('Origem de login') }}</label>
+        {{ auth_dropdown_login|raw }}
+      {% endif %}
+
+      <div class="form-button-wrapper">
+        <button type="submit"><i class="fa fa-right-to-bracket" aria-hidden="true"></i> Entrar</button>
+      </div>
+
+      {# >>> VARIANTE INSTITUCIONAL <<< #}
+      {% set lost_url = path('front/lostpassword.php') ~ '?noAUTO=1' %}
+
+      {# Link "Esqueci minha senha" (só para GLPI interno) #}
+      <div class="forgot-password" id="forgot-wrapper" style="display:none;">
+        <a id="forgot-link"
+           href="{{ lost_url }}"
+           rel="nofollow"
+           aria-label="Recuperar acesso via e-mail">
+          <i class="fa fa-question-circle" aria-hidden="true"></i> Esqueci minha senha
+        </a>
+      </div>
+
+      {# Mensagem institucional quando for AD/LDAP/SEI #}
+      <div id="institutional-help" class="alert alert-info" role="status" style="display:none; margin-top:10px;">
+        <div class="help-title" style="font-weight:600; margin-bottom:4px;">
+          <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> Redefinição de senha na origem selecionada
+        </div>
+        <div class="help-body">
+          Sua origem de login é <strong id="auth-origin-label">externa</strong>. Para redefinir a senha, procure o setor responsável:
+          <ul style="margin:6px 0 0 18px;">
+            <li><strong>RH</strong> (gestão de credenciais dos servidores)</li>
+            <li><strong>Help Desk SMTI</strong> – Gabinete: <a href="tel:+55693901-6322">(69) 3901-6322</a></li>
+          </ul>
+          <small>Observação: o link “Esqueci minha senha” só está disponível para contas do banco interno do GLPI.</small>
+        </div>
+      </div>
+
+      {% if errors|length > 0 %}
+        <div class="alert alert-danger" role="alert">
+          {{ errors }}
+        </div>
+      {% endif %}
+    </form>
+  </div>
+</main>
+
+<!-- RODAPÉ -->
+<footer class="glpi-footer" role="contentinfo" aria-label="Rodapé do sistema">
+  <div class="footer-content">
+    <div class="footer-lines">
+      <div class="line1">
+        {{ "now"|date("Y") }} © DGEZ - Privacidade e Proteção de Dados
+      </div>
+      <div class="line2">
+        <i class="fa-solid fa-headset" aria-hidden="true"></i>
+        Comercial:<a href="tel:+5569xxxx-xxxx">(69) xxxx-xxxx</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var select = document.querySelector('select[name="auth"]'); // dropdown de origem
+    var forgotBox = document.getElementById('forgot-wrapper');
+    var helpBox = document.getElementById('institutional-help');
+    var originLabel = document.getElementById('auth-origin-label');
+
+    // heurística: considerar GLPI interno quando o value/texto conter "glpi"
+    function isGlpiInternal(opt) {
+      if (!opt) return true;
+      var val = (opt.value || '').toLowerCase();
+      var txt = (opt.textContent || '').toLowerCase();
+      return val.includes('glpi') || txt.includes('glpi');
+    }
+
+    function updateUi() {
+      var opt = null;
+      if (select && select.selectedIndex >= 0) {
+        opt = select.options[select.selectedIndex];
+      }
+      var glpi = isGlpiInternal(opt);
+
+      // Atualiza rótulo exibido
+      var labelText = opt ? (opt.textContent || opt.value || 'externa') : 'GLPI internal database';
+      if (originLabel) originLabel.textContent = labelText;
+
+      if (glpi) {
+        // Mostrar link de esqueci senha; ocultar mensagem institucional
+        if (forgotBox) forgotBox.style.display = 'block';
+        if (helpBox) helpBox.style.display = 'none';
+      } else {
+        if (forgotBox) forgotBox.style.display = 'none';
+        if (helpBox) helpBox.style.display = 'block';
+      }
+    }
+
+    // Se não existir dropdown, assumir GLPI interno (ambiente só-GLPI)
+    if (!select) {
+      if (forgotBox) forgotBox.style.display = 'block';
+      if (helpBox) helpBox.style.display = 'none';
+      return;
+    }
+
+    select.addEventListener('change', updateUi);
+    updateUi(); // inicializa
+  })();
+</script>
+
+{% endblock %}
